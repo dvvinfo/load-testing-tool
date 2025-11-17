@@ -23,7 +23,7 @@ export class ItemsSeeder {
       const remainingItems = totalItems - count;
       
       for (let i = 0; i < remainingItems; i += batchSize) {
-        const batch = [];
+        const batch: Item[] = [];
         const batchSizeActual = Math.min(batchSize, remainingItems - i);
         
         for (let j = 0; j < batchSizeActual; j++) {

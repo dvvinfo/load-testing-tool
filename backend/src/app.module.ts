@@ -16,6 +16,13 @@ import { CommandRunnerModule } from 'nest-commander';
       database: process.env.DATABASE_NAME || 'testdb',
       autoLoadEntities: true,
       synchronize: true,
+      // Connection pooling settings
+      extra: {
+        max: 20,
+        min: 5,
+        acquire: 30000,
+        idle: 10000,
+      },
     }),
     ItemsModule,
     CommandRunnerModule,
