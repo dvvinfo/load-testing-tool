@@ -1,73 +1,73 @@
-# Load Testing Application with NestJS, Vue 3, and PostgreSQL
+# Приложение для нагрузочного тестирования с использованием NestJS, Vue 3 и PostgreSQL
 
-This project is a full-stack application that demonstrates load testing capabilities with a NestJS backend, Vue 3 frontend, and PostgreSQL database, all containerized with Docker.
+Этот проект представляет собой полнофункциональное приложение, демонстрирующее возможности нагрузочного тестирования с бэкендом на NestJS, фронтендом на Vue 3 и базой данных PostgreSQL, все контейнеризировано с помощью Docker.
 
-## Technologies Used
+## Используемые технологии
 
-- **Backend**: NestJS (TypeScript)
-- **Database**: PostgreSQL (via Docker)
-- **Frontend**: Vue 3
-- **Containerization**: Docker / docker-compose
+- **Бэкенд**: NestJS (TypeScript)
+- **База данных**: PostgreSQL (через Docker)
+- **Фронтенд**: Vue 3
+- **Контейнеризация**: Docker / docker-compose
 
-## Project Structure
+## Структура проекта
 
 ```
 .
-├── backend         # NestJS application
-├── frontend        # Vue 3 application
+├── backend         # Приложение NestJS
+├── frontend        # Приложение Vue 3
 ├── docker-compose.yml
 └── README.md
 ```
 
-## Getting Started
+## Начало работы
 
-### Prerequisites
+### Предварительные требования
 
-- Docker and Docker Compose installed
-- Node.js (for local development)
+- Установленные Docker и Docker Compose
+- Node.js (для локальной разработки)
 
-### Running the Application
+### Запуск приложения
 
-1. Clone the repository:
+1. Клонируйте репозиторий:
    ```bash
-   git clone <repository-url>
-   cd <project-directory>
+   git clone <url-репозитория>
+   cd <директория-проекта>
    ```
 
-2. Start all services with Docker Compose:
+2. Запустите все сервисы с помощью Docker Compose:
    ```bash
    docker-compose up
    ```
 
-3. Access the applications:
-   - **Frontend**: http://localhost:8080
-   - **Backend API**: http://localhost:3000
+3. Доступ к приложениям:
+   - **Фронтенд**: http://localhost:8080
+   - **API бэкенда**: http://localhost:3000
 
-### Seeding the Database
+### Заполнение базы данных
 
-To populate the database with 50,000+ items:
+Чтобы заполнить базу данных более чем 50 000 элементами:
 
-1. First, ensure the containers are running:
+1. Убедитесь, что контейнеры запущены:
    ```bash
    docker-compose up -d
    ```
 
-2. Run the seed command:
+2. Выполните команду заполнения:
    ```bash
    docker-compose exec backend npm run seed
    ```
 
-## API Endpoints
+## Конечные точки API
 
 ### GET /items
 
-Retrieves a paginated list of items.
+Получает список элементов с постраничной навигацией.
 
-**Query Parameters:**
-- `limit` (optional, default: 10) - Number of items to return
-- `offset` (optional, default: 0) - Number of items to skip
+**Параметры запроса:**
+- `limit` (опционально, по умолчанию: 10) - Количество возвращаемых элементов
+- `offset` (опционально, по умолчанию: 0) - Количество пропускаемых элементов
 
-**Response:**
+**Ответ:**
 ```json
 {
   "data": [...],
@@ -77,193 +77,193 @@ Retrieves a paginated list of items.
 }
 ```
 
-## Load Testing
+## Нагрузочное тестирование
 
-The Vue frontend provides a load testing interface where you can:
+Фронтенд на Vue предоставляет интерфейс для нагрузочного тестирования, где вы можете:
 
-1. Specify the number of requests to send
-2. Set a delay between requests
-3. Configure concurrent requests
-4. Monitor real-time statistics:
-   - Sent requests
-   - Successful requests
-   - Failed requests
-   - Elapsed time
-   - Requests per second
-   - Visual chart of requests over time
+1. Указать количество отправляемых запросов
+2. Установить задержку между запросами
+3. Настроить параллельные запросы
+4. Отслеживать статистику в реальном времени:
+   - Отправленные запросы
+   - Успешные запросы
+   - Неудачные запросы
+   - Затраченное время
+   - Запросы в секунду
+   - Визуальная диаграмма запросов по времени
 
-## Performance Optimizations
+## Оптимизация производительности
 
-### Initial Performance (Before Optimizations)
+### Первоначальная производительность (до оптимизаций)
 
-Before any optimizations, the `/items` endpoint experienced noticeable delays when handling concurrent requests:
-- Response times: 500-2000ms under load
-- Database CPU usage: High during concurrent queries
-- Connection pool exhaustion with high concurrency
+До применения оптимизаций конечная точка `/items` испытывала заметные задержки при обработке параллельных запросов:
+- Время отклика: 500-2000 мс под нагрузкой
+- Использование процессора базы данных: высокое во время параллельных запросов
+- Исчерпание пула соединений при высокой параллелизме
 
-### Applied Optimizations
+### Примененные оптимизации
 
-1. **Database Indexing**:
-   - Added index on the `id` column (primary key already indexed)
-   - Added index on `created_at` column for time-based queries
+1. **Индексация базы данных**:
+   - Добавлен индекс для столбца `id` (первичный ключ уже индексирован)
+   - Добавлен индекс для столбца `created_at` для запросов по времени
 
-2. **Connection Pooling**:
-   - Configured TypeORM connection pool settings:
+2. **Пул соединений**:
+   - Настроены параметры пула соединений TypeORM:
      - `maxConnections`: 20
      - `minConnections`: 5
-     - `acquireTimeout`: 30000ms
+     - `acquireTimeout`: 30000 мс
 
-3. **Pagination Optimization**:
-   - Implemented efficient pagination using `LIMIT` and `OFFSET`
-   - Added total count caching for better performance
+3. **Оптимизация постраничной навигации**:
+   - Реализована эффективная постраничная навигация с использованием `LIMIT` и `OFFSET`
+   - Добавлено кэширование общего количества для лучшей производительности
 
-4. **Caching** (Planned but not implemented due to dependency issues):
-   - Would add in-memory caching for frequently requested pages
-   - Would use cache TTL of 30 seconds for dynamic data
+4. **Кэширование** (Запланировано, но не реализовано из-за проблем с зависимостями):
+   - Добавление кэширования в памяти для часто запрашиваемых страниц
+   - Использование TTL кэша 30 секунд для динамических данных
 
-### Performance After Optimizations
+### Производительность после оптимизаций
 
-After implementing the optimizations:
-- Response times: 100-500ms under similar load
-- Database CPU usage: Moderately reduced
-- Improved stability under high load
-- Better handling of concurrent requests
+После реализации оптимизаций:
+- Время отклика: 100-500 мс при аналогичной нагрузке
+- Использование процессора базы данных: умеренно снижено
+- Повышенная стабильность под высокой нагрузкой
+- Лучшая обработка параллельных запросов
 
-## Development
+## Разработка
 
-### Backend (NestJS)
+### Бэкенд (NestJS)
 
-1. Navigate to the backend directory:
+1. Перейдите в директорию бэкенда:
    ```bash
    cd backend
    ```
 
-2. Install dependencies:
+2. Установите зависимости:
    ```bash
    npm install
    ```
 
-3. Run in development mode:
+3. Запустите в режиме разработки:
    ```bash
    npm run start:dev
    ```
 
-### Frontend (Vue 3)
+### Фронтенд (Vue 3)
 
-1. Navigate to the frontend directory:
+1. Перейдите в директорию фронтенда:
    ```bash
    cd frontend
    ```
 
-2. Install dependencies:
+2. Установите зависимости:
    ```bash
    npm install
    ```
 
-3. Run in development mode:
+3. Запустите в режиме разработки:
    ```bash
    npm run dev
    ```
 
-## Project Structure Details
+## Детали структуры проекта
 
-### Backend
+### Бэкенд
 
 ```
 src/
-├── items/              # Items module
-│   ├── dto/            # Data Transfer Objects
-│   ├── entities/       # TypeORM entities
-│   ├── commands/       # CLI commands
+├── items/              # Модуль элементов
+│   ├── dto/            # Объекты передачи данных
+│   ├── entities/       # Сущности TypeORM
+│   ├── commands/       # Команды CLI
 │   ├── items.controller.ts
 │   ├── items.service.ts
 │   └── items.module.ts
-├── seeder/             # Database seeder
+├── seeder/             # Заполнение базы данных
 ├── app.controller.ts
 ├── app.service.ts
 ├── app.module.ts
 └── main.ts
 ```
 
-### Frontend
+### Фронтенд
 
 ```
 src/
-├── components/         # Vue components
+├── components/         # Компоненты Vue
 ├── App.vue
 └── main.ts
 ```
 
-## Docker Configuration
+## Конфигурация Docker
 
-- **PostgreSQL**: Official PostgreSQL 15 image with persistent data volume
-- **Backend**: Custom Node.js 18 Alpine image with NestJS application
-- **Frontend**: Multi-stage build with Node.js for building and Nginx for serving
+- **PostgreSQL**: Официальный образ PostgreSQL 15 с постоянным томом данных
+- **Бэкенд**: Пользовательский образ Node.js 18 Alpine с приложением NestJS
+- **Фронтенд**: Многоэтапная сборка с Node.js для сборки и Nginx для обслуживания
 
-## Environment Variables
+## Переменные окружения
 
-The application can be configured using environment variables:
+Приложение можно настроить с помощью переменных окружения:
 
-### Backend
-- `DATABASE_HOST`: Database host (default: db)
-- `DATABASE_PORT`: Database port (default: 5432)
-- `DATABASE_USER`: Database user (default: postgres)
-- `DATABASE_PASSWORD`: Database password (default: postgres)
-- `DATABASE_NAME`: Database name (default: testdb)
+### Бэкенд
+- `DATABASE_HOST`: Хост базы данных (по умолчанию: db)
+- `DATABASE_PORT`: Порт базы данных (по умолчанию: 5432)
+- `DATABASE_USER`: Пользователь базы данных (по умолчанию: postgres)
+- `DATABASE_PASSWORD`: Пароль базы данных (по умолчанию: postgres)
+- `DATABASE_NAME`: Имя базы данных (по умолчанию: testdb)
 
-## Testing
+## Тестирование
 
-### Load Testing Process
+### Процесс нагрузочного тестирования
 
-1. Start all services with Docker Compose
-2. Access the frontend at http://localhost:8080
-3. Configure test parameters:
-   - Number of requests (e.g., 1000)
-   - Delay between requests (e.g., 100ms)
-   - Concurrent requests (e.g., 10)
-4. Click "Start Load Test"
-5. Monitor real-time results and chart visualization
+1. Запустите все сервисы с помощью Docker Compose
+2. Откройте фронтенд по адресу http://localhost:8080
+3. Настройте параметры теста:
+   - Количество запросов (например, 1000)
+   - Задержка между запросами (например, 100 мс)
+   - Параллельные запросы (например, 10)
+4. Нажмите "Начать нагрузочный тест"
+5. Отслеживайте результаты в реальном времени и визуализацию диаграммы
 
-### Performance Metrics
+### Метрики производительности
 
-Key metrics tracked during load testing:
-- Requests per second (RPS)
-- Average response time
-- Success rate
-- Error rate
-- Resource utilization
+Основные метрики, отслеживаемые во время нагрузочного тестирования:
+- Запросы в секунду (RPS)
+- Среднее время отклика
+- Коэффициент успеха
+- Коэффициент ошибок
+- Использование ресурсов
 
-## Troubleshooting
+## Устранение неполадок
 
-### Common Issues
+### Распространенные проблемы
 
-1. **Database connection failures**:
-   - Ensure all containers are running: `docker-compose ps`
-   - Check database logs: `docker-compose logs db`
+1. **Сбои подключения к базе данных**:
+   - Убедитесь, что все контейнеры запущены: `docker-compose ps`
+   - Проверьте логи базы данных: `docker-compose logs db`
 
-2. **Frontend not connecting to backend**:
-   - Verify the nginx proxy configuration
-   - Check backend logs: `docker-compose logs backend`
+2. **Фронтенд не подключается к бэкенду**:
+   - Проверьте конфигурацию прокси nginx
+   - Проверьте логи бэкенда: `docker-compose logs backend`
 
-3. **Slow performance**:
-   - Check if database is properly seeded
-   - Monitor container resource usage: `docker stats`
+3. **Медленная производительность**:
+   - Проверьте, правильно ли заполнена база данных
+   - Отслеживайте использование ресурсов контейнерами: `docker stats`
 
-### Useful Commands
+### Полезные команды
 
-- View container logs: `docker-compose logs <service>`
-- Execute commands in containers: `docker-compose exec <service> <command>`
-- Stop all services: `docker-compose down`
-- Rebuild containers: `docker-compose up --build`
+- Просмотр логов контейнеров: `docker-compose logs <сервис>`
+- Выполнение команд в контейнерах: `docker-compose exec <сервис> <команда>`
+- Остановка всех сервисов: `docker-compose down`
+- Пересборка контейнеров: `docker-compose up --build`
 
-## Contributing
+## Участие в разработке
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+1. Сделайте форк репозитория
+2. Создайте ветку функциональности
+3. Зафиксируйте свои изменения
+4. Отправьте в ветку
+5. Создайте Pull Request
 
-## License
+## Лицензия
 
-This project is licensed under the MIT License.
+Этот проект лицензирован по лицензии MIT.

@@ -1,110 +1,82 @@
 <template>
   <div class="load-tester">
-    <h1>Load Testing Tool</h1>
+    <Header />
     
-    <div class="form-group">
-      <label for="requestsCount">Number of Requests:</label>
-      <input 
-        id="requestsCount" 
-        v-model.number="requestsCount" 
-        type="number" 
-        min="1" 
-        max="10000"
-        placeholder="Enter number of requests"
-      >
-    </div>
+    <ParametersForm>
+      <AppInput
+        id="requestsCount"
+        label="Количество запросов:"
+        v-model="requestsCount"
+        type="number"
+        :min="1"
+        :max="10000"
+        placeholder="Введите количество запросов"
+      />
+      
+      <AppInput
+        id="delayMs"
+        label="Задержка между запросами (мс):"
+        v-model="delayMs"
+        type="number"
+        :min="0"
+        :max="10000"
+        placeholder="Введите задержку в миллисекундах"
+      />
+      
+      <AppInput
+        id="concurrentRequests"
+        label="Параллельные запросы:"
+        v-model="concurrentRequests"
+        type="number"
+        :min="1"
+        :max="100"
+        placeholder="Введите количество параллельных запросов"
+      />
+    </ParametersForm>
     
-    <div class="form-group">
-      <label for="delayMs">Delay Between Requests (ms):</label>
-      <input 
-        id="delayMs" 
-        v-model.number="delayMs" 
-        type="number" 
-        min="0" 
-        max="10000"
-        placeholder="Enter delay in milliseconds"
-      >
-    </div>
-    
-    <div class="form-group">
-      <label for="concurrentRequests">Concurrent Requests:</label>
-      <input 
-        id="concurrentRequests" 
-        v-model.number="concurrentRequests" 
-        type="number" 
-        min="1" 
-        max="100"
-        placeholder="Enter concurrent requests"
-      >
-    </div>
-    
-    <button 
-      @click="startLoadTest" 
+    <AppButton
+      @click="startLoadTest"
       :disabled="isLoading"
-      class="start-button"
+      variant="primary"
     >
-      {{ isLoading ? 'Testing...' : 'Start Load Test' }}
-    </button>
+      {{ isLoading ? 'Тестирование...' : 'Начать нагрузочный тест' }}
+    </AppButton>
     
-    <button 
+    <AppButton
       v-if="isLoading"
-      @click="stopLoadTest" 
-      class="stop-button"
+      @click="stopLoadTest"
+      variant="danger"
     >
-      Stop Test
-    </button>
+      Остановить тест
+    </AppButton>
     
-    <div v-if="isLoading || hasResults" class="results">
-      <h2>Test Results</h2>
-      <div class="metrics">
-        <div class="metric">
-          <span class="label">Sent:</span>
-          <span class="value">{{ sentRequests }}</span>
-        </div>
-        <div class="metric">
-          <span class="label">Successful:</span>
-          <span class="value success">{{ successfulRequests }}</span>
-        </div>
-        <div class="metric">
-          <span class="label">Failed:</span>
-          <span class="value error">{{ failedRequests }}</span>
-        </div>
-        <div class="metric">
-          <span class="label">Elapsed Time:</span>
-          <span class="value">{{ elapsedTime }} ms</span>
-        </div>
-        <div class="metric">
-          <span class="label">RPS (Avg):</span>
-          <span class="value">{{ requestsPerSecond }}</span>
-        </div>
-      </div>
+    <TestResults v-if="isLoading || hasResults">
+      <Metrics>
+        <MetricCard label="Отправлено" :value="sentRequests" />
+        <MetricCard label="Успешно" :value="successfulRequests" type="success" />
+        <MetricCard label="Ошибки" :value="failedRequests" type="error" />
+        <MetricCard label="Время" :value="elapsedTime + ' мс'" />
+        <MetricCard label="RPS (Среднее)" :value="requestsPerSecond" />
+      </Metrics>
       
-      <div class="chart-container">
-        <h3>Requests Over Time</h3>
-        <div class="chart">
-          <div 
-            v-for="(point, index) in chartData" 
-            :key="index"
-            class="chart-bar"
-            :style="{ height: point.height + '%' }"
-            :title="`Time: ${point.time}s\nSuccess: ${point.success}\nFailed: ${point.failed}`"
-          ></div>
-        </div>
-        <div class="chart-labels">
-          <span>Start</span>
-          <span>End</span>
-        </div>
-      </div>
+      <Chart :chart-data="chartData" />
       
-      <div v-if="isLoading" class="progress">
-        <div class="progress-bar" :style="{ width: progressPercentage + '%' }"></div>
-      </div>
-    </div>
+      <ProgressBar v-if="isLoading" :progress-percentage="progressPercentage" />
+    </TestResults>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import AppInput from './AppInput.vue'
+import AppButton from './AppButton.vue'
+import Header from './Header.vue'
+import ParametersForm from './ParametersForm.vue'
+import TestResults from './TestResults.vue'
+import Metrics from './Metrics.vue'
+import MetricCard from './MetricCard.vue'
+import Chart from './Chart.vue'
+import ProgressBar from './ProgressBar.vue'
 
 // Form inputs
 const requestsCount = ref(100)
@@ -133,7 +105,6 @@ interface ChartPoint {
 
 const chartData = ref<ChartPoint[]>([])
 
-// Computed
 const elapsedTime = computed(() => {
   if (startTime.value === 0) return 0
   if (endTime.value === 0) {
@@ -169,7 +140,6 @@ const startLoadTest = async () => {
   // Run the load test
   await runLoadTest()
   
-  // Finish
   endTime.value = Date.now()
   isLoading.value = false
 }
@@ -269,11 +239,9 @@ const runLoadTest = async () => {
     // Add batch promises to main promises array
     promises.push(...batchPromises)
     
-    // Wait for this batch to complete before moving to the next
     await Promise.all(batchPromises)
   }
   
-  // Wait for all requests to complete (this is redundant but safe)
   await Promise.all(promises)
   
   // Final chart update
@@ -287,161 +255,5 @@ const runLoadTest = async () => {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.start-button {
-  background-color: #42b883;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-right: 10px;
-}
-
-.start-button:hover:not(:disabled) {
-  background-color: #359c6d;
-}
-
-.start-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.stop-button {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.stop-button:hover {
-  background-color: #c0392b;
-}
-
-.results {
-  margin-top: 30px;
-  padding: 20px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-}
-
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.metric {
-  background-color: white;
-  padding: 15px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #666;
-}
-
-.value {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.success {
-  color: #42b883;
-}
-
-.error {
-  color: #e74c3c;
-}
-
-.chart-container {
-  margin: 30px 0;
-}
-
-.chart-container h3 {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.chart {
-  display: flex;
-  align-items: end;
-  height: 200px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  background-color: white;
-  margin-bottom: 5px;
-}
-
-.chart-bar {
-  flex: 1;
-  background-color: #3498db;
-  margin: 0 1px;
-  min-width: 4px;
-  position: relative;
-}
-
-.chart-bar:before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 50%;
-  background-color: #e74c3c;
-}
-
-.chart-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: #666;
-}
-
-.progress {
-  width: 100%;
-  height: 20px;
-  background-color: #eee;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.progress-bar {
-  height: 100%;
-  background-color: #42b883;
-  transition: width 0.3s ease;
 }
 </style>
