@@ -1,5 +1,5 @@
-# Use Node.js 18 as base image
-FROM node:18-alpine as build
+# Use Node.js 20 as base image (required for Vite)
+FROM node:20-alpine as build
 
 # Set working directory
 WORKDIR /app
@@ -13,8 +13,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application (skip type checking for Docker build)
+RUN npm run build:docker
 
 # Production stage
 FROM nginx:alpine

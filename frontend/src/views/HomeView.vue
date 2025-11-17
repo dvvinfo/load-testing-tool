@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
+import LoadTester from '../components/LoadTester.vue'
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    <LoadTester />
   </main>
 </template>
