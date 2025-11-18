@@ -9,7 +9,6 @@
 </template>
 
 <script setup lang="ts">
-// Define props
 const props = defineProps<{
   variant?: 'primary' | 'secondary' | 'danger'
   disabled?: boolean

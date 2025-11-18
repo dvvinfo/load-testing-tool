@@ -8,14 +8,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-// Define props
 const props = defineProps<{
   label: string
   value: string | number
   type?: 'success' | 'error' | 'default'
 }>()
 
-// Computed property for value class
 const valueClass = computed(() => {
   switch (props.type) {
     case 'success':

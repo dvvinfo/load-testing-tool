@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-// Define props
 defineProps<{
   progressPercentage: number
 }>()

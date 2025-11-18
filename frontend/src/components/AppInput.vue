@@ -1,20 +1,12 @@
 <template>
   <div class="app-input">
     <label :for="id">{{ label }}</label>
-    <input 
-      :id="id"
-      :value="modelValue"
-      @input="handleInput"
-      :type="type"
-      :min="min"
-      :max="max"
-      :placeholder="placeholder"
-    >
+    <input :id="id" :value="modelValue" @input="handleInput" :type="type" :min="min" :max="max"
+      :placeholder="placeholder">
   </div>
 </template>
 
 <script setup lang="ts">
-// Define props
 const props = defineProps<{
   id: string
   label: string
@@ -25,12 +17,10 @@ const props = defineProps<{
   placeholder?: string
 }>()
 
-// Define emits
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number | string): void
 }>()
 
-// Handle input event
 const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement
   const value = props.type === 'number' ? parseFloat(target.value) || 0 : target.value

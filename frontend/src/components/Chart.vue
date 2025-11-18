@@ -2,13 +2,8 @@
   <div class="chart-container">
     <h3>Запросы по времени</h3>
     <div class="chart">
-      <div 
-        v-for="(point, index) in chartData" 
-        :key="index"
-        class="chart-bar"
-        :style="{ height: point.height + '%' }"
-        :title="`Время: ${point.time}с\nУспешно: ${point.success}\nОшибки: ${point.failed}`"
-      ></div>
+      <div v-for="(point, index) in chartData" :key="index" class="chart-bar" :style="{ height: point.height + '%' }"
+        :title="`Время: ${point.time}с\nУспешно: ${point.success}\nОшибки: ${point.failed}`"></div>
     </div>
     <div class="chart-labels">
       <span>Начало</span>
@@ -18,7 +13,6 @@
 </template>
 
 <script setup lang="ts">
-// Define the ChartPoint interface
 interface ChartPoint {
   time: number
   success: number
@@ -26,7 +20,6 @@ interface ChartPoint {
   height: number
 }
 
-// Define props
 defineProps<{
   chartData: ChartPoint[]
 }>()
