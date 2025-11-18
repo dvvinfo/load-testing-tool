@@ -10,7 +10,10 @@ export class ItemsService {
     private itemsRepository: Repository<Item>,
   ) {}
 
-  async findAll(limit: number = 10, offset: number = 0): Promise<{ data: Item[]; total: number }> {
+  async findAll(
+    limit: number = 10,
+    offset: number = 0,
+  ): Promise<{ data: Item[]; total: number }> {
     const [data, total] = await this.itemsRepository.findAndCount({
       take: limit,
       skip: offset,

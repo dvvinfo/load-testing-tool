@@ -5,4 +5,4 @@ async function bootstrap() {
   await CommandFactory.run(SeederModule);
 }
 
-bootstrap();
+void bootstrap();
